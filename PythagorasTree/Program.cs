@@ -14,10 +14,9 @@ namespace WindowsFormsApplication1
         [STAThread]
         static void Main()
         {
-            using (MainWindow example = new MainWindow())
+            using (var window = new PythagorasWindow())
             {
-                // Get the title and category  of this example using reflection.
-                example.Run(30.0, 0.0);
+                window.Run(30.0, 0.0);
             }
         }
     }

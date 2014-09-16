@@ -165,11 +165,6 @@ namespace WindowsFormsApplication1
                 newVector *= (rightVector - leftVector).Length / 2;
                 newVector += midVector;
 
-                //Add triangle
-                
-                //_lines.Add(new[] { rightVector, newVector });
-                //_lines.Add(new[] { leftVector, newVector });
-
                 var newVectorAngle = VecAngle(newVector, leftVector);
                 var newVectorAngle2 = VecAngle(rightVector, newVector);
 
@@ -185,17 +180,6 @@ namespace WindowsFormsApplication1
 
                 var rightTopLeft = newVector + rightTranslation;
                 var rightTopRight = rightVector + rightTranslation;
-
-
-                //Add left square
-                //_lines.Add(new[] { leftVector, leftTopLeft });
-                //_lines.Add(new[] { newVector, leftTopRight });
-                //_lines.Add(new[] { leftTopLeft, leftTopRight });
-
-                //Add right square
-                //_lines.Add(new[] { newVector, rightTopLeft });
-                //_lines.Add(new[] { rightVector, rightTopRight });
-                //_lines.Add(new[] { rightTopLeft, rightTopRight });
 
                 return new PythagorasSet
                 {
@@ -251,15 +235,13 @@ namespace WindowsFormsApplication1
 
             if (depth < 10) depth = 10;
 
-            //Debug.WriteLine(depth);
-            _lines = new List<Vector3[]>();
-
-            _lines.Add(new[] { new Vector3(0, 0, 0), new Vector3(0, SIZE, 0) });
-            _lines.Add(new[] { new Vector3(0, SIZE, 0), new Vector3(SIZE, SIZE, 0) });
-            _lines.Add(new[] { new Vector3(SIZE, SIZE, 0), new Vector3(SIZE, 0, 0) });
-            _lines.Add(new[] { new Vector3(SIZE, 0, 0), new Vector3(0, 0, 0) });
-
-            //Make(depth, new Vector3(0, SIZE,0), new Vector3(SIZE, SIZE,0));
+            _lines = new List<Vector3[]>
+            {
+                new[] {new Vector3(0, 0, 0), new Vector3(0, SIZE, 0)},
+                new[] {new Vector3(0, SIZE, 0), new Vector3(SIZE, SIZE, 0)},
+                new[] {new Vector3(SIZE, SIZE, 0), new Vector3(SIZE, 0, 0)},
+                new[] {new Vector3(SIZE, 0, 0), new Vector3(0, 0, 0)}
+            };
 
             for (var i = 0; i < depth; i++)
             {
@@ -297,8 +279,6 @@ namespace WindowsFormsApplication1
 
                 _camX += xdf * _zoom;
                 _camY -= ydf * _zoom;
-
-                //Debug.WriteLine("Move to {0},{1}", _camX, _camY);
             }
         }
 
@@ -324,6 +304,7 @@ namespace WindowsFormsApplication1
                             )
                         {
                         GL.Begin(BeginMode.Lines);
+                            GL.Begin(PrimitiveType.Triangles);
                         foreach (var v in s) GL.Vertex3(v);
                         GL.End();
 }
