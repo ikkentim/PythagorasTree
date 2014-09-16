@@ -13,8 +13,5 @@
     <releaseNotes>Provides the OpenTK library for Windows. Newest build 2014-07-18 based on the stable 1.1 release from the official https://github.com/opentk/opentk repository (lots of fixes from 2013 and much improved startup time). If you need OpenAL functionality working out of the box checkout the OpenTKWithOpenAL package. For GLControl use the OpenTK.GLControl package. Can also be used via the DeltaEngine.Frameworks.OpenTK nuget package.</releaseNotes>
     <copyright>Copyright 2014</copyright>
     <tags>OpenTK OpenAL OpenGL OpenCL</tags>
-    <references>
-      <reference file="OpenTK.dll" />
-    </references>
   </metadata>
 </package>

@@ -56,10 +56,10 @@ namespace WindowsFormsApplication1
 
         protected override void OnMouseWheel(MouseWheelEventArgs e)
         {
-            _zoom += e.DeltaPrecise * 20;
-            if (_zoom < 0)
+            _zoom += e.DeltaPrecise > 0 ? _zoom/50 : -_zoom/50;
+            if (_zoom < float.Epsilon)
             {
-                _zoom = 0;
+                _zoom = float.Epsilon;
             }
 
             Rescale();
@@ -81,7 +81,7 @@ namespace WindowsFormsApplication1
 
         protected override void OnLoad(EventArgs e)
         {
-            GL.ClearColor(Color.Black);
+            GL.ClearColor(Color.Wheat);
 
             Rescale();
             CalcData();
@@ -106,16 +106,16 @@ namespace WindowsFormsApplication1
             float aspectRatio = (float)Width / Height;
             GL.Ortho(-_zoom * aspectRatio, _zoom * aspectRatio, -_zoom, _zoom, 0.0, 4.0);
 
-            Debug.WriteLine("ReS: {0}, {1}", -_zoom * aspectRatio, _zoom * aspectRatio);
             _horizontalScale = _zoom * aspectRatio;
             _verticalScale = _zoom;
         }
 
         void CalcData()
         {
-            //_iterations = (SIZE - (int)_zoom) / 1000;
+            _iterations = 10 + (int)(2000 /_zoom);
 
-            if (_iterations < 0) _iterations = 0;
+            if (_iterations < 10) _iterations = 10;
+            if (_iterations > 20) _iterations = 20;
 
             PythagorasSets.GenerateSets(_iterations, SIZE);
         }
@@ -138,37 +138,51 @@ namespace WindowsFormsApplication1
             }
         }
 
-        private void RenderSquare(Vector2[] points, Vector2 vpLeft, Vector2 vpRight)
+        private bool RenderSquare(Vector2[] points, Vector2 vpLeft, Vector2 vpRight, Color color, bool check)
         {
-            if (!points.Any(p => p.X >= vpLeft.X || p.X <= vpRight.X || p.Y >= vpLeft.Y || p.Y <= vpRight.Y))
-                return;
+            if (check && !points.Any(p => p.X >= vpLeft.X || p.X <= vpRight.X || p.Y >= vpLeft.Y || p.Y <= vpRight.Y))
+                return false;
 
             GL.Begin(PrimitiveType.Quads);
-            GL.Color3(Color.Blue);
-            foreach (var
-                point in points) GL.Vertex2(point);
+            GL.Color3(color);
+            foreach (var point in points) GL.Vertex2(point);
             GL.End();
+
+            return true;
         }
-        private void RenderTriangle(Vector2[] points, Vector2 vpLeft, Vector2 vpRight)
+
+        private bool RenderTriangle(Vector2[] points, Vector2 vpLeft, Vector2 vpRight, Color color, bool check)
         {
-            if (!points.Any(p => p.X >= vpLeft.X || p.X <= vpRight.X || p.Y >= vpLeft.Y || p.Y <= vpRight.Y))
-                return;
+            if (check && !points.Any(p => p.X >= vpLeft.X || p.X <= vpRight.X || p.Y >= vpLeft.Y || p.Y <= vpRight.Y))
+                return false;
 
             GL.Begin(PrimitiveType.Triangles);
-
-                GL.Color3(Color.Red);
-            foreach (var point in points)
-            {
-                GL.Vertex2(point);
-            }
+            GL.Color3(color);
+            foreach (var point in points) GL.Vertex2(point);
             GL.End();
 
-
+            return true;
         }
 
+        void RenderPytha(Pythagoras p, Vector2 vpLeft, Vector2 vpRight, int iteration)
+        {
+            var r = 100 - 50 * iteration;
+
+            var g = -r;
+            if (r < 0) r = 0;
+            if (g < 0) g = 0;
+            if (g > 255) g = 255;
+            var c = Color.FromArgb(r, g, 0);
+
+            bool ls = RenderSquare(p.LeftSquare, vpLeft, vpRight, c, true);
+            bool rs = RenderSquare(p.RightSquare, vpLeft, vpRight, c, true);
+
+            if (ls && iteration < _iterations) RenderPytha(p.NextLeft(), vpLeft, vpRight, iteration + 1);
+            if (rs && iteration < _iterations) RenderPytha(p.NextRight(), vpLeft, vpRight, iteration + 1);
+            
+        }
         protected override void OnRenderFrame(FrameEventArgs e)
         {
-
             GL.Clear(ClearBufferMask.ColorBufferBit);
 
             Vector2 vpLeft = new Vector2(-_camX - _horizontalScale, -_camY - _verticalScale);
@@ -185,16 +199,32 @@ namespace WindowsFormsApplication1
                         {
                             new Vector2(0, 0), new Vector2(0, SIZE), new Vector2(SIZE, SIZE),
                             new Vector2(SIZE, 0)
-                        }, vpLeft, vpRight);
+                        }, vpLeft, vpRight, Color.FromArgb(100, 0, 0), true);
 
-                    foreach (var set in PythagorasSets.GetSets(_iterations, SIZE))
+                    var iteration = 0;
+                    foreach (var set in PythagorasSets.GetSets(12, SIZE))
                     {
+                        var r = 100 - 50 * iteration;
+
+                        var g = -r;
+                        if (r < 0) r = 0;
+                        if (g < 0) g = 0;
+                        if (g > 255) g = 255;
+                        var c = Color.FromArgb(r, g, 0);
                         foreach (var py in set)
                         {
-                            RenderSquare(py.LeftSquare, vpLeft, vpRight);
-                            RenderSquare(py.RightSquare, vpLeft, vpRight);
-                            RenderTriangle(py.Triangle, vpLeft, vpRight);
+                            if (iteration == 11)
+                            {
+                                RenderPytha(py, vpLeft, vpRight, iteration);
+                            }
+                            else
+                            {
+                                RenderSquare(py.LeftSquare, vpLeft, vpRight, c, true);
+                                RenderSquare(py.RightSquare, vpLeft, vpRight, c, true);
+                            }
                         }
+
+                        iteration++;
                     }
                 }
                 GL.PopMatrix();

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using OpenTK;
 
@@ -21,7 +22,7 @@ namespace WindowsFormsApplication1
             }
             if (iteration == 0)
             {
-                var set = new[] { Pythagoras.Generate(new Vector3(0, baseSize, 0), new Vector3(baseSize, baseSize, 0)) };
+                var set = new[] { Pythagoras.Generate(new Vector2(0, baseSize), new Vector2(baseSize, baseSize)) };
 
                 Sets.Add(set);
                 return set;

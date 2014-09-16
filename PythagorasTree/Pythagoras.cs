@@ -64,11 +64,18 @@ namespace WindowsFormsApplication1
             };
         }
 
+        public Pythagoras NextLeft()
+        {
+            return Generate(LeftSquare[3], LeftSquare[2]); //Set on top of left side
+        }
+        public Pythagoras NextRight()
+        {
+            return Generate(RightSquare[3], RightSquare[2]); //Set on top of left side
+        }
         public IEnumerable<Pythagoras> Next()
         {
-
-            yield return Generate(LeftSquare[3], LeftSquare[2]); //Set on top of left side
-            yield return Generate(RightSquare[3], RightSquare[2]); //Set on top of right side
+            yield return NextLeft();
+            yield return NextRight();
         }
 
     }
