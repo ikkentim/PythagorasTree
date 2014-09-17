@@ -21,6 +21,11 @@ namespace WindowsFormsApplication1
     {
         private static readonly List<IEnumerable<Pythagoras>> Sets = new List<IEnumerable<Pythagoras>>();
 
+        public static int AvailableIterations
+        {
+            get { return Sets.Count; }
+        }
+
         private static IEnumerable<Pythagoras> GetSetsForSets(IEnumerable<Pythagoras> previousSets)
         {
             return previousSets.SelectMany(set => set.Next());
@@ -34,13 +39,13 @@ namespace WindowsFormsApplication1
             }
             if (iteration == 0)
             {
-                var set = new[] {Pythagoras.Generate(new Vector2(0, baseSize), new Vector2(baseSize, baseSize))};
+                var set = new[] {Pythagoras.Generate(new Vector2(0, baseSize), new Vector2(baseSize, baseSize), 0)};
 
                 Sets.Add(set);
                 return set;
             }
 
-            var sets = GetSetsForSets(GetSet(iteration - 1, baseSize));
+            IEnumerable<Pythagoras> sets = GetSetsForSets(GetSet(iteration - 1, baseSize));
 
             Sets.Add(sets);
             return sets;
@@ -54,7 +59,6 @@ namespace WindowsFormsApplication1
 
         public static void GenerateSets(int iterations, float baseSize)
         {
-            //Ensure Nth set was generated
             if (Sets.Count <= iterations)
                 GetSet(iterations, baseSize);
         }

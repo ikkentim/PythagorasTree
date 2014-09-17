@@ -25,6 +25,7 @@ namespace WindowsFormsApplication1
 
         public Vector2[] RightSquare { get; set; }
 
+        public int Iteration { get; set; }
 
         private static double VecAngle(Vector2 l, Vector2 r)
         {
@@ -36,51 +37,52 @@ namespace WindowsFormsApplication1
             return new Vector2((float) Math.Cos(angle), (float) Math.Sin(angle));
         }
 
-        public static Pythagoras Generate(Vector2 leftVector, Vector2 rightVector)
+        public static Pythagoras Generate(Vector2 leftVector, Vector2 rightVector, int iteration)
         {
             /* 
               * Triangle
               */
 
-            var angle = VecAngle(leftVector, rightVector) + Math.PI/2;
+            double angle = VecAngle(leftVector, rightVector) + Math.PI/2;
             Vector2 midVector = leftVector + (rightVector - leftVector)/2;
             Vector2 newVector = AngleVector(angle);
 
             newVector *= (rightVector - leftVector).Length/2;
             newVector += midVector;
 
-            var newVectorAngle = VecAngle(newVector, leftVector);
-            var newVectorAngle2 = VecAngle(rightVector, newVector);
+            double newVectorAngle = VecAngle(newVector, leftVector);
+            double newVectorAngle2 = VecAngle(rightVector, newVector);
 
             /*
              * Squares below
              */
 
-            var leftTranslation = AngleVector(newVectorAngle - Math.PI/2)*(newVector - leftVector).Length;
-            var rightTranslation = AngleVector(newVectorAngle2 - Math.PI/2)*(newVector - rightVector).Length;
+            Vector2 leftTranslation = AngleVector(newVectorAngle - Math.PI/2)*(newVector - leftVector).Length;
+            Vector2 rightTranslation = AngleVector(newVectorAngle2 - Math.PI/2)*(newVector - rightVector).Length;
 
-            var leftTopLeft = leftVector + leftTranslation;
-            var leftTopRight = newVector + leftTranslation;
+            Vector2 leftTopLeft = leftVector + leftTranslation;
+            Vector2 leftTopRight = newVector + leftTranslation;
 
-            var rightTopLeft = newVector + rightTranslation;
-            var rightTopRight = rightVector + rightTranslation;
+            Vector2 rightTopLeft = newVector + rightTranslation;
+            Vector2 rightTopRight = rightVector + rightTranslation;
 
             return new Pythagoras
             {
                 Triangle = new[] {leftVector, rightVector, newVector},
                 LeftSquare = new[] {leftVector, newVector, leftTopRight, leftTopLeft},
-                RightSquare = new[] {newVector, rightVector, rightTopRight, rightTopLeft}
+                RightSquare = new[] {newVector, rightVector, rightTopRight, rightTopLeft},
+                Iteration = iteration
             };
         }
 
         public Pythagoras NextLeft()
         {
-            return Generate(LeftSquare[3], LeftSquare[2]); //Set on top of left side
+            return Generate(LeftSquare[3], LeftSquare[2], Iteration + 1); //Set on top of left side
         }
 
         public Pythagoras NextRight()
         {
-            return Generate(RightSquare[3], RightSquare[2]); //Set on top of left side
+            return Generate(RightSquare[3], RightSquare[2], Iteration + 1); //Set on top of left side
         }
 
         public IEnumerable<Pythagoras> Next()

@@ -52,6 +52,7 @@
     <Compile Include="Pythagoras.cs" />
     <Compile Include="PythagorasSets.cs" />
     <Compile Include="PythagorasWindow.cs" />
+    <Compile Include="Viewport.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
