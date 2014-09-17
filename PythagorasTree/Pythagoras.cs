@@ -14,6 +14,7 @@
 using System;
 using System.Collections.Generic;
 using OpenTK;
+using PythagorasTree.Properties;
 
 namespace PythagorasTree
 {
@@ -40,21 +41,21 @@ namespace PythagorasTree
         public static Pythagoras Generate(Vector2 leftVector, Vector2 rightVector, int iteration)
         {
             /* 
-              * Triangle
-              */
+             * Calculate triangle corners.
+             */
 
             double angle = VecAngle(leftVector, rightVector) + Math.PI/2;
             Vector2 midVector = leftVector + (rightVector - leftVector)/2;
             Vector2 newVector = AngleVector(angle);
 
-            newVector *= (rightVector - leftVector).Length/2;
+            newVector *= (rightVector - leftVector).Length/Settings.Default.TriangleSizeFactor;
             newVector += midVector;
 
             double newVectorAngle = VecAngle(newVector, leftVector);
             double newVectorAngle2 = VecAngle(rightVector, newVector);
 
             /*
-             * Squares below
+             * Calculate squares' corners.
              */
 
             Vector2 leftTranslation = AngleVector(newVectorAngle - Math.PI/2)*(newVector - leftVector).Length;
@@ -66,6 +67,9 @@ namespace PythagorasTree
             Vector2 rightTopLeft = newVector + rightTranslation;
             Vector2 rightTopRight = rightVector + rightTranslation;
 
+            /*
+             * Initialize the structure.
+             */
             return new Pythagoras
             {
                 Triangle = new[] {leftVector, rightVector, newVector},

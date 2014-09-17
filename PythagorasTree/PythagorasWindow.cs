@@ -21,14 +21,14 @@ using System.Threading;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
+using PythagorasTree.Properties;
 
 namespace PythagorasTree
 {
     public class PythagorasWindow : GameWindow
     {
-        private const int DefaultIterations = 16;
-        private const int CalcViewportOffset = 4;
-        private const int MaxIteration = 35;
+        private const int DefaultIterations = 15;
+        private const int MaxIteration = 33;
         private const int SquareSize = 2000;
         private Vector2 _camera;
 
@@ -45,6 +45,7 @@ namespace PythagorasTree
         public PythagorasWindow() : base(800, 600)
         {
             Title = "Pythagoras tree";
+            Icon = Resources.tree;
         }
 
         #region Events
@@ -113,7 +114,6 @@ namespace PythagorasTree
             Rescale();
 
             _defaultDrawList = PythagorasSets.GetSets(DefaultIterations, SquareSize).SelectMany(i => i).ToList();
-            PythagorasSets.GenerateSets(MaxIteration, SquareSize);
 
             CalcData();
         }
@@ -171,31 +171,43 @@ namespace PythagorasTree
 
         private void CalculateVisiblePythagorasSetsThread()
         {
-            if (_iterations < DefaultIterations || PythagorasSets.AvailableIterations < DefaultIterations)
+            if (_iterations < DefaultIterations)
             {
                 _calculatingVisiblePythagorasSetsThread = null;
                 return;
             }
 
-            List<Pythagoras> lastVisible =
+            /*
+             * Find visible squares at the Nth iteration.
+             */
+            List<Pythagoras> current =
                 PythagorasSets.GetSet(DefaultIterations - 1, SquareSize)
-                    .Where(py => py.LeftSquare.Any(p => _viewport.IsNear(p, 50 / _scale)) || py.RightSquare.Any(p => _viewport.IsNear(p, 50 / _scale)))
+                    .Where(
+                        py =>
+                            py.LeftSquare.Any(p => _viewport.IsNear(p, 50/_scale)) ||
+                            py.RightSquare.Any(p => _viewport.IsNear(p, 50/_scale)))
                     .ToList();
 
-            for (int i = DefaultIterations; i < _iterations && i < PythagorasSets.AvailableIterations; i++)
+            for (int i = DefaultIterations; i < _iterations; i++)
             {
-                IEnumerable<Pythagoras> next = lastVisible.SelectMany(p => p.Next());
+                var next = current.SelectMany(p => p.Next());
 
-                Pythagoras[] sel =
+                /*
+                 * .ToArray to make sure .Where ran before we lock the list.
+                 */
+                Pythagoras[] visible =
                     next.Where(p => p.LeftSquare.Any(_viewport.Contains) || p.RightSquare.Any(_viewport.Contains))
                         .ToArray();
 
                 lock (_drawListLocker)
                 {
-                    _drawList.AddRange(sel);
+                    _drawList.AddRange(visible);
                 }
 
-                lastVisible = next.ToList();
+                /*
+                 * Keep iteration for next iteration's reference. 
+                 */
+                current = next.ToList();
             }
         }
 
@@ -205,26 +217,14 @@ namespace PythagorasTree
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
-            if (_move)
-            {
-                float xd = _moveFocusX - Mouse.X;
-                float yd = _moveFocusY - Mouse.Y;
+            if (!_move) return;
 
-                _camera += new Vector2(xd/2500*_scale, -yd/2500*_scale);
-            }
+            _camera += new Vector2((float)(_moveFocusX - Mouse.X)/2500*_scale, -(float)(_moveFocusY - Mouse.Y)/2500*_scale);
         }
 
-        private void RenderSquare(Vector2[] points, Color color)
+        private void RenderSquare(IEnumerable<Vector2> points, Color color)
         {
             GL.Begin(PrimitiveType.Quads);
-            GL.Color3(color);
-            foreach (Vector2 point in points) GL.Vertex2(point);
-            GL.End();
-        }
-
-        private void RenderTriangle(Vector2[] points, Color color)
-        {
-            GL.Begin(PrimitiveType.Triangles);
             GL.Color3(color);
             foreach (Vector2 point in points) GL.Vertex2(point);
             GL.End();
@@ -240,7 +240,9 @@ namespace PythagorasTree
 
                 GL.PushMatrix();
                 {
-                    //Default square
+                    /*
+                     * Render default square.
+                     */
                     RenderSquare(
                         new[]
                         {
@@ -248,10 +250,12 @@ namespace PythagorasTree
                             new Vector2(SquareSize, 0)
                         }, Color.FromArgb(100, 0, 0));
 
-
+                    /*
+                     * Render the list of iterations that are always rendered.
+                     */
                     foreach (Pythagoras py in _defaultDrawList)
                     {
-                        int r = 100 - 50*py.Iteration; //iteration;
+                        int r = 110 - 35*py.Iteration;
 
                         int g = -r;
                         if (r < 0) r = 0;
@@ -263,25 +267,26 @@ namespace PythagorasTree
                         RenderSquare(py.RightSquare, c);
                     }
 
-                    if (_drawList != null)
+                    /*
+                     * Render additional iterations.
+                     */
+                    lock (_drawListLocker)
                     {
-                        lock (_drawListLocker)
+                        foreach (Pythagoras py in _drawList)
                         {
-                            foreach (Pythagoras py in _drawList)
-                            {
-                                int r = 100 - 50*py.Iteration; //iteration;
+                            int r = 110 - 35*py.Iteration;
 
-                                int g = -r;
-                                if (r < 0) r = 0;
-                                if (g < 0) g = 0;
-                                if (g > 255) g = 255;
-                                Color c = Color.FromArgb(r, g, 0);
+                            int g = -r;
+                            if (r < 0) r = 0;
+                            if (g < 0) g = 0;
+                            if (g > 255) g = 255;
+                            Color c = Color.FromArgb(r, g, 0);
 
-                                RenderSquare(py.LeftSquare, c);
-                                RenderSquare(py.RightSquare, c);
-                            }
+                            RenderSquare(py.LeftSquare, c);
+                            RenderSquare(py.RightSquare, c);
                         }
                     }
+
                 }
                 GL.PopMatrix();
             }

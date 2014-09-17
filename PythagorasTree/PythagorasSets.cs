@@ -12,6 +12,7 @@
 // For more information, please refer to <http://unlicense.org>
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using OpenTK;
 
@@ -26,17 +27,19 @@ namespace PythagorasTree
             get { return Sets.Count; }
         }
 
-        private static IEnumerable<Pythagoras> GetSetsForSets(IEnumerable<Pythagoras> previousSets)
-        {
-            return previousSets.SelectMany(set => set.Next());
-        }
-
         public static IEnumerable<Pythagoras> GetSet(int iteration, float baseSize)
         {
-            if (Sets.Count > iteration) //Available in known
+            /*
+             * Set was already generated, parse from list.
+             */
+            if (Sets.Count > iteration)
             {
                 return Sets[iteration];
             }
+
+            /*
+             * First iterations need to be handed the base plate.
+             */
             if (iteration == 0)
             {
                 var set = new[] {Pythagoras.Generate(new Vector2(0, baseSize), new Vector2(baseSize, baseSize), 0)};
@@ -45,7 +48,10 @@ namespace PythagorasTree
                 return set;
             }
 
-            IEnumerable<Pythagoras> sets = GetSetsForSets(GetSet(iteration - 1, baseSize));
+            /*
+             * Other iterations can simply ge generated using the Pythagoras.Next function.
+             */
+            IEnumerable<Pythagoras> sets = GetSet(iteration - 1, baseSize).SelectMany(set => set.Next()).ToList();
 
             Sets.Add(sets);
             return sets;
@@ -53,14 +59,10 @@ namespace PythagorasTree
 
         public static IEnumerable<IEnumerable<Pythagoras>> GetSets(int iterations, float baseSize)
         {
-            GenerateSets(iterations, baseSize);
-            return Sets.Take(iterations);
-        }
-
-        public static void GenerateSets(int iterations, float baseSize)
-        {
-            if (Sets.Count <= iterations)
-                GetSet(iterations, baseSize);
+            for (var i = 0; i < iterations; i++)
+            {
+                yield return GetSet(i, baseSize).ToArray();
+            }
         }
     }
 }

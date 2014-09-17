@@ -34,8 +34,8 @@ namespace PythagorasTree
 
         public bool IsNear(Vector2 point, float screenscale)
         {
-            Vector2 ll = Left - (Right - Left) * screenscale;
-            Vector2 rr = Right + (Right - Left) * screenscale;
+            Vector2 ll = Left - (Right - Left)*screenscale;
+            Vector2 rr = Right + (Right - Left)*screenscale;
 
             return point.X >= ll.X && point.X <= rr.X && point.Y >= ll.Y && point.Y <= rr.Y;
         }

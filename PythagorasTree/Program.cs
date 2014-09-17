@@ -23,6 +23,9 @@ namespace PythagorasTree
         [STAThread]
         private static void Main()
         {
+            /*
+             * Start the application
+             */
             using (var window = new PythagorasWindow())
             {
                 window.Run(30.0, 0.0);
