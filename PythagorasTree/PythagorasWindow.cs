@@ -12,6 +12,7 @@
 // For more information, please refer to <http://unlicense.org>
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using OpenTK;
@@ -33,8 +34,7 @@ namespace WindowsFormsApplication1
         private int _moveFocusY;
         private float _verticalScale = 3;
         private float _zoom = 4000;
-
-
+ 
         public PythagorasWindow() : base(800, 600)
         {
             Title = "Pythagoras tree";
@@ -117,6 +117,8 @@ namespace WindowsFormsApplication1
             _verticalScale = _zoom;
         }
 
+        public IEnumerable<Pythagoras> _drawThis;
+
         private void CalcData()
         {
             _iterations = 10 + (int) (2000/_zoom);
@@ -125,6 +127,8 @@ namespace WindowsFormsApplication1
             if (_iterations > 20) _iterations = 20;
 
             PythagorasSets.GenerateSets(_iterations, SIZE);
+
+            _drawThis = PythagorasSets.GetSets(_iterations, SIZE).SelectMany(p => p);
         }
 
         #endregion
@@ -207,6 +211,22 @@ namespace WindowsFormsApplication1
                             new Vector2(SIZE, 0)
                         }, vpLeft, vpRight, Color.FromArgb(100, 0, 0), true);
 
+
+                    var r = 100 - 50*0;//iteration;
+
+                    var g = -r;
+                    if (r < 0) r = 0;
+                    if (g < 0) g = 0;
+                    if (g > 255) g = 255;
+                    var c = Color.FromArgb(r, g, 0);
+
+                    if(_drawThis != null)
+                        foreach (var py in _drawThis)
+                        {
+                            RenderSquare(py.LeftSquare, vpLeft, vpRight, c, false);
+                            RenderSquare(py.RightSquare, vpLeft, vpRight, c, false);
+                        }
+                    /*
                     var iteration = 0;
                     foreach (var set in PythagorasSets.GetSets(12, SIZE))
                     {
@@ -231,7 +251,7 @@ namespace WindowsFormsApplication1
                         }
 
                         iteration++;
-                    }
+                    }*/
                 }
                 GL.PopMatrix();
             }
