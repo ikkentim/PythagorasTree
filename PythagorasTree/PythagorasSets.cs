@@ -1,5 +1,17 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
+﻿// PythagorasTree
+// Copyright (C) 2014 Tim Potze
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+// IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+// OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+// ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+// OTHER DEALINGS IN THE SOFTWARE.
+// 
+// For more information, please refer to <http://unlicense.org>
+
+using System.Collections.Generic;
 using System.Linq;
 using OpenTK;
 
@@ -22,7 +34,7 @@ namespace WindowsFormsApplication1
             }
             if (iteration == 0)
             {
-                var set = new[] { Pythagoras.Generate(new Vector2(0, baseSize), new Vector2(baseSize, baseSize)) };
+                var set = new[] {Pythagoras.Generate(new Vector2(0, baseSize), new Vector2(baseSize, baseSize))};
 
                 Sets.Add(set);
                 return set;
@@ -40,8 +52,8 @@ namespace WindowsFormsApplication1
             return Sets.Take(iterations);
         }
 
-        public static void GenerateSets(int iterations, float baseSize )
-        { 
+        public static void GenerateSets(int iterations, float baseSize)
+        {
             //Ensure Nth set was generated
             if (Sets.Count <= iterations)
                 GetSet(iterations, baseSize);
