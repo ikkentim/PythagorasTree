@@ -14,6 +14,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
@@ -21,11 +22,12 @@ using OpenTK;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
 
-namespace WindowsFormsApplication1
+namespace PythagorasTree
 {
     public class PythagorasWindow : GameWindow
     {
         private const int DefaultIterations = 16;
+        private const int CalcViewportOffset = 4;
         private const int MaxIteration = 35;
         private const int SquareSize = 2000;
         private Vector2 _camera;
@@ -95,8 +97,12 @@ namespace WindowsFormsApplication1
                 Exit();
 
             if (e.Key == Key.F11)
+            {
                 WindowState = WindowState == WindowState.Fullscreen ? WindowState.Normal : WindowState.Fullscreen;
 
+                Rescale();
+                CalcData();
+            }
             base.OnKeyDown(e);
         }
 
@@ -173,7 +179,7 @@ namespace WindowsFormsApplication1
 
             List<Pythagoras> lastVisible =
                 PythagorasSets.GetSet(DefaultIterations - 1, SquareSize)
-                    .Where(py => py.LeftSquare.Any(_viewport.IsNear) || py.RightSquare.Any(_viewport.IsNear))
+                    .Where(py => py.LeftSquare.Any(p => _viewport.IsNear(p, 50 / _scale)) || py.RightSquare.Any(p => _viewport.IsNear(p, 50 / _scale)))
                     .ToList();
 
             for (int i = DefaultIterations; i < _iterations && i < PythagorasSets.AvailableIterations; i++)

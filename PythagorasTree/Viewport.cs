@@ -13,7 +13,7 @@
 
 using OpenTK;
 
-namespace WindowsFormsApplication1
+namespace PythagorasTree
 {
     public struct Viewport
     {
@@ -32,10 +32,10 @@ namespace WindowsFormsApplication1
             return point.X >= Left.X && point.X <= Right.X && point.Y >= Left.Y && point.Y <= Right.Y;
         }
 
-        public bool IsNear(Vector2 point)
+        public bool IsNear(Vector2 point, float screenscale)
         {
-            Vector2 ll = Left - (Right - Left)*3;
-            Vector2 rr = Right + (Right - Left)*3;
+            Vector2 ll = Left - (Right - Left) * screenscale;
+            Vector2 rr = Right + (Right - Left) * screenscale;
 
             return point.X >= ll.X && point.X <= rr.X && point.Y >= ll.Y && point.Y <= rr.Y;
         }

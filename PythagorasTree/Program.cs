@@ -13,7 +13,7 @@
 
 using System;
 
-namespace WindowsFormsApplication1
+namespace PythagorasTree
 {
     internal static class Program
     {

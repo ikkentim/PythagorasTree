@@ -15,7 +15,7 @@ using System;
 using System.Collections.Generic;
 using OpenTK;
 
-namespace WindowsFormsApplication1
+namespace PythagorasTree
 {
     public struct Pythagoras
     {

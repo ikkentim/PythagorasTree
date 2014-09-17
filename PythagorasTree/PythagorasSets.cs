@@ -15,7 +15,7 @@ using System.Collections.Generic;
 using System.Linq;
 using OpenTK;
 
-namespace WindowsFormsApplication1
+namespace PythagorasTree
 {
     public static class PythagorasSets
     {
